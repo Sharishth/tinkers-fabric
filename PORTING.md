@@ -23,6 +23,12 @@ Target: Minecraft 26.3, Fabric Loader, Fabric API, Java 25.
 | M7 | Client: rendering, models, GUIs, books, recipe-viewer compat | planned |
 | M8 | World gen, data gen, advancements, final compat pass | planned |
 
+## Behaviour differences from upstream
+
+| Area | Upstream (1.20.1) | This port | Why |
+|---|---|---|---|
+| Common tag namespace | `forge:` (for example `forge:ingots/iron`) | `c:` (for example `c:ingots/iron`) | Fabric and 26.x use `c`; upstream planned the same move for 1.21+ |
+
 ## Not ported (yet or on purpose)
 
 Every feature left out is listed here with its reason. Nothing is dropped silently.

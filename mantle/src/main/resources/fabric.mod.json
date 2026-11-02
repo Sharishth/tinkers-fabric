@@ -16,6 +16,14 @@
 	},
 	"license": "MIT",
 	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"slimeknights.mantle.Mantle"
+		],
+		"client": [
+			"slimeknights.mantle.client.ClientEvents"
+		]
+	},
 	"depends": {
 		"fabricloader": ">=0.20.1",
 		"minecraft": "~26.3",
