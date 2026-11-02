@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 1,
+	"id": "tconstruct-gametest",
+	"version": "1.0.0",
+	"name": "Tinkers' Construct GameTests",
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"slimeknights.tconstruct.gametest.TConstructSmokeGameTest"
+		],
+		"fabric-client-gametest": [
+			"slimeknights.tconstruct.gametest.TConstructBootClientGameTest"
+		]
+	},
+	"depends": {
+		"tconstruct": "*"
+	}
+}

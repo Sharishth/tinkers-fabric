@@ -1,0 +1,8 @@
+loom {
+	mods {
+		mantle {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}

@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "tconstruct",
+	"version": "${version}",
+	"name": "Tinkers' Construct (unofficial Fabric port)",
+	"description": "Modular tools, smeltery and more. Unofficial Fabric port of Tinkers' Construct, not affiliated with SlimeKnights.",
+	"authors": [
+		"SlimeKnights (original Tinkers' Construct)"
+	],
+	"contributors": [
+		"Sharishth Singh (Fabric port)"
+	],
+	"contact": {
+		"sources": "https://github.com/Sharishth/tinkers-fabric",
+		"issues": "https://github.com/Sharishth/tinkers-fabric/issues"
+	},
+	"license": "MIT",
+	"environment": "*",
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*",
+		"mantle": "*"
+	}
+}

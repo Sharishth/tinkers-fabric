@@ -1,0 +1,16 @@
+{
+	"schemaVersion": 1,
+	"id": "mantle-gametest",
+	"version": "1.0.0",
+	"name": "Mantle GameTests",
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": [
+			"slimeknights.mantle.gametest.MantleSmokeGameTest"
+		]
+	},
+	"depends": {
+		"mantle": "*"
+	}
+}

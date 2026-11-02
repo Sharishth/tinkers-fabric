@@ -1,0 +1,25 @@
+{
+	"schemaVersion": 1,
+	"id": "mantle",
+	"version": "${version}",
+	"name": "Mantle (unofficial Fabric port)",
+	"description": "Shared library for Tinkers' Construct. Unofficial Fabric port, not affiliated with SlimeKnights.",
+	"authors": [
+		"SlimeKnights (original Mantle)"
+	],
+	"contributors": [
+		"Sharishth Singh (Fabric port)"
+	],
+	"contact": {
+		"sources": "https://github.com/Sharishth/tinkers-fabric",
+		"issues": "https://github.com/Sharishth/tinkers-fabric/issues"
+	},
+	"license": "MIT",
+	"environment": "*",
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

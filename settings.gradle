@@ -1,0 +1,16 @@
+pluginManagement {
+	repositories {
+		maven {
+			name = 'Fabric'
+			url = 'https://maven.fabricmc.net/'
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+
+rootProject.name = 'tinkers-fabric'
+
+// Mantle is the shared library; tconstruct depends on it and bundles it
+include 'mantle'
+include 'tconstruct'

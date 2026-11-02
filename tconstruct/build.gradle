@@ -1,0 +1,27 @@
+// Mantle's source sets must exist before they are referenced below
+evaluationDependsOn(':mantle')
+
+// WHY: not named `mantle`, which would shadow the `mantle { }` block in loom.mods
+def mantleProject = project(':mantle')
+
+loom {
+	mods {
+		tconstruct {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+		// Groups Mantle's classes into one mod when running the game from this project
+		mantle {
+			sourceSet mantleProject.sourceSets.main
+			sourceSet mantleProject.sourceSets.client
+		}
+	}
+}
+
+dependencies {
+	// WHY: path notation; passing the Project object is deprecated and fails in Gradle 10
+	implementation project(path: ':mantle')
+	clientImplementation mantleProject.sourceSets.client.output
+	// Jar-in-jar: players install one tconstruct jar (D-06)
+	include project(path: ':mantle')
+}

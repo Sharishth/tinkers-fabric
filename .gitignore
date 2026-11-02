@@ -43,3 +43,8 @@ reference/
 # --- local-only project memory (AGENTS.md and CLAUDE.md stay tracked) ---
 .md_references/
 .claude/
+# --- local dev script and editor settings (machine paths) ---
+scripts/dev.local.*
+*.code-workspace
+# --- jars saved by scripts/env/clean_env before build/ is deleted ---
+dist/
