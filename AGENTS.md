@@ -2,7 +2,7 @@
 
 Unofficial Fabric port of Tinkers' Construct + Mantle for Minecraft 26.3 (Java 25, Gradle multi-project: `mantle/`, `tconstruct/`). Windows: use `gradlew.bat`.
 `reference/` holds upstream clones (git-ignored, read-only): port by reading a subsystem and rewriting it; never bulk-copy Forge/NeoForge code. Unported features go in PORTING.md.
-Versions live only in `gradle.properties` + the wrapper. `scripts/env/` = clean/restore machine setup, `scripts/dev.*` = build/test/run; both read those versions.
+Versions live only in `gradle.properties` + the wrapper. `scripts/env/` = clean/restore machine setup, `scripts/dev.*` = build/test/run; both read those versions. `scripts/codegen/` writes files marked `// GENERATED`: edit the generator and rerun it, never the output.
 
 This file loads every session (CLAUDE.md imports it). Keep it under 70 lines. `.md_references/` is local-only (git-ignored); without it, read PORTING.md.
 

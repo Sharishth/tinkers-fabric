@@ -1,0 +1,115 @@
+package slimeknights.mantle.data.loadable.array;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.jspecify.annotations.Nullable;
+import slimeknights.mantle.data.loadable.Loadable;
+import slimeknights.mantle.data.loadable.field.DefaultingField;
+import slimeknights.mantle.data.loadable.field.LoadableField;
+import slimeknights.mantle.util.typed.TypedMap;
+
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+
+/**
+ * Loadable for an object array.
+ * @param base         Loadable for each element
+ * @param constructor  Creates an array of the given size
+ * @param minSize      Fewest elements, or a compact marker from {@link ArrayLoadable}
+ * @param maxSize      Most elements
+ * @param allowNull    If true, elements may be null (JSON null; a presence flag on the network)
+ */
+public record ObjectArrayLoadable<T>(Loadable<T> base, IntFunction<T[]> constructor, int minSize, int maxSize, boolean allowNull) implements ArrayLoadable.SizeRange<T[]> {
+  @Override
+  public int getLength(T[] array) {
+    return array.length;
+  }
+
+  /** Reads one element, allowing JSON null when enabled */
+  private @Nullable T parseElement(JsonElement element, String key, TypedMap context) {
+    if (allowNull && element.isJsonNull()) {
+      return null;
+    }
+    return base.convert(element, key, context);
+  }
+
+  @Override
+  public T[] convertCompact(JsonElement element, String key, TypedMap context) {
+    T[] result = constructor.apply(1);
+    result[0] = parseElement(element, key, context);
+    return result;
+  }
+
+  @Override
+  public T[] convertArray(JsonArray array, String key, TypedMap context) {
+    T[] result = constructor.apply(array.size());
+    for (int i = 0; i < result.length; i++) {
+      result[i] = parseElement(array.get(i), key + '[' + i + ']', context);
+    }
+    return result;
+  }
+
+  /** Writes one element, allowing null when enabled */
+  private JsonElement serializeElement(@Nullable T object, int index) {
+    if (object != null) {
+      return base.serialize(object);
+    }
+    if (allowNull) {
+      return JsonNull.INSTANCE;
+    }
+    throw new NullPointerException("Received null at index " + index + " in ArrayLoadable not supporting null");
+  }
+
+  @Override
+  public JsonElement serializeFirst(T[] object) {
+    return serializeElement(object[0], 0);
+  }
+
+  @Override
+  public void serializeAll(JsonArray array, T[] object) {
+    for (int i = 0; i < object.length; i++) {
+      array.add(serializeElement(object[i], i));
+    }
+  }
+
+  @Override
+  public T[] decode(RegistryFriendlyByteBuf buffer, TypedMap context) {
+    int size = buffer.readVarInt();
+    T[] array = constructor.apply(size);
+    for (int i = 0; i < size; i++) {
+      boolean isPresent = !allowNull || buffer.readBoolean();
+      array[i] = isPresent ? base.decode(buffer, context) : null;
+    }
+    return array;
+  }
+
+  @Override
+  public void encode(RegistryFriendlyByteBuf buffer, T[] array) {
+    buffer.writeVarInt(array.length);
+    for (T element : array) {
+      if (allowNull) {
+        buffer.writeBoolean(element != null);
+      } else {
+        Objects.requireNonNull(element, "ArrayLoadable not supporting null received a null element");
+      }
+      if (element != null) {
+        base.encode(buffer, element);
+      }
+    }
+  }
+
+  /** WHY Arrays::equals: arrays compare by identity, so the default would write equal arrays */
+  @Override
+  public <P> LoadableField<T[], P> defaultField(String key, T[] defaultValue, boolean serializeDefault, Function<P, T[]> getter) {
+    return new DefaultingField<>(this, key, defaultValue, serializeDefault ? null : Arrays::equals, getter);
+  }
+
+  @Override
+  public <P> LoadableField<T[], P> emptyField(String key, boolean serializeEmpty, Function<P, T[]> getter) {
+    return defaultField(key, constructor.apply(0), serializeEmpty, getter);
+  }
+}
