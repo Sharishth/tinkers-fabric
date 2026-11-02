@@ -6,8 +6,12 @@
 	"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
+		"main": [
+			"slimeknights.mantle.gametest.registration.RegistrationTestContent"
+		],
 		"fabric-gametest": [
-			"slimeknights.mantle.gametest.MantleSmokeGameTest"
+			"slimeknights.mantle.gametest.MantleSmokeGameTest",
+			"slimeknights.mantle.gametest.registration.RegistrationGameTest"
 		]
 	},
 	"depends": {
