@@ -5,6 +5,9 @@ An **unofficial**, community-made port of [Tinkers' Construct](https://github.co
 > [!IMPORTANT]
 > This project is **not affiliated with, endorsed by or supported by SlimeKnights**. Please do not report bugs from this port to the official Tinkers' Construct issue tracker.
 
+> [!NOTE]
+> **About this project.** This is a personal project, made for fun. It is built mostly by AI ([Claude](https://claude.com/claude-code), by Anthropic): apart from basic testing, the code, documentation and porting decisions are mainly handled by the AI. It is not made for personal or financial gain: there are no donations, ads or paid builds. The only goal is to experience Tinkers' Construct on a modern Minecraft version with Fabric. Expect rough edges, and use it at your own risk.
+
 > [!WARNING]
 > Pre-alpha. There is no playable build yet. The port is being built milestone by milestone (see [PORTING.md](PORTING.md)).
 
