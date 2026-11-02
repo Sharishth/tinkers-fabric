@@ -36,20 +36,30 @@ Versions are confirmed against fabricmc.net during setup; see PORTING.md for the
 
 ## Install
 
-No release exists yet. To build from source on Windows:
+No release exists yet. To build from source on Windows (needs a Java 25 JDK):
 
 ```powershell
 git clone https://github.com/Sharishth/tinkers-fabric.git
 cd tinkers-fabric
-.\gradlew.bat build
+scripts\env\restore_env.bat
 ```
 
-The jars land in `tconstruct\build\libs\` and `mantle\build\libs\` once those modules exist.
+The jar to install is `tconstruct\build\libs\tconstruct-<version>.jar` (Mantle is bundled inside it).
 
 ## Development
 
-- Build: `.\gradlew.bat build`
-- Run a dev client: `.\gradlew.bat :tconstruct:runClient`
+Requirements are pinned in [gradle.properties](gradle.properties) (Java, Minecraft, Fabric versions) and the Gradle wrapper. The scripts read them from there.
+
+| Task | Windows | Linux / macOS / Git Bash |
+|---|---|---|
+| Set up from nothing (finds the JDK, fetches Gradle, builds, tests) | `scripts\env\restore_env.bat` | `scripts/env/restore_env.sh` |
+| Same, plus client test (opens a game window, saves screenshots) | `scripts\env\restore_env.bat -ClientTest` | `scripts/env/restore_env.sh --client-test` |
+| See what a clean would remove | `scripts\env\clean_env.bat -DryRun` | `scripts/env/clean_env.sh --dry-run` |
+| Clean (project + this Minecraft version's Loom cache; jars saved to `dist/`) | `scripts\env\clean_env.bat` | `scripts/env/clean_env.sh` |
+| Daily commands: build, test, client-test, client, server | `scripts\dev.bat help` | `scripts/dev.sh help` |
+
+- `clean_env` never touches other projects' caches unless you add `-Deep` / `--deep`.
+- The dev server needs the Minecraft EULA; the scripts only accept it when you set `TF_ACCEPT_EULA=1`.
 - Agents and contributors: start with [AGENTS.md](AGENTS.md); porting status and rules are in [PORTING.md](PORTING.md).
 
 ## Mod id

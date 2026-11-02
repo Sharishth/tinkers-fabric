@@ -2,6 +2,7 @@
 
 Unofficial Fabric port of Tinkers' Construct + Mantle for Minecraft 26.3 (Java 25, Gradle multi-project: `mantle/`, `tconstruct/`). Windows: use `gradlew.bat`.
 `reference/` holds upstream clones (git-ignored, read-only): port by reading a subsystem and rewriting it; never bulk-copy Forge/NeoForge code. Unported features go in PORTING.md.
+Versions live only in `gradle.properties` + the wrapper. `scripts/env/` = clean/restore machine setup, `scripts/dev.*` = build/test/run; both read those versions.
 
 This file loads every session (CLAUDE.md imports it). Keep it under 70 lines. `.md_references/` is local-only (git-ignored); without it, read PORTING.md.
 
@@ -38,7 +39,8 @@ This file loads every session (CLAUDE.md imports it). Keep it under 70 lines. `.
 | Command, toolchain, invariant or gotcha | `02_for_ai.md` (commands also `09_quick_test_run.md`) |
 | New domain term or naming rule | `03_code_style.md` glossary |
 | Install, usage or user-visible feature | `README.md` |
-| Env var, secret, config key, dependency, DB, storage, deploy | `10_security_guide.md` inventory (names only) and `.env.example` |
+| Env var, secret, config key, dependency, packaging | `10_security_guide.md` inventory (names only) |
+| Version bump (Java, MC, Fabric, Gradle) | `gradle.properties` / wrapper only; scripts follow; log in `07` |
 | New component, interface, data model or architecture decision | `18_system_design.md` (section and a D-nn decision row); devjournal cites D-nn |
 | Folder layout or agent workflow | this file |
 | Claude-only harness rule | `CLAUDE.md` |
