@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import slimeknights.mantle.data.predicate.MantlePredicates;
 
 /**
  * Central mod object for Mantle.
@@ -29,7 +30,7 @@ public class Mantle implements ModInitializer {
     instance = this;
     // TODO(T-15): register client and server config (upstream Mantle constructor)
     // TODO(T-22): MantleTags.init (sign block entity types: vanilla's, see registerWood)
-    // TODO(T-13): predicate loaders and mob type predicates (upstream register RECIPE_SERIALIZER block)
+    MantlePredicates.register();
     // TODO(T-16): MantleNetwork.registerPackets (upstream commonSetup)
     // TODO(T-17): MantleCommand.init and resource_or_tag_key argument type
     // TODO(T-18): soulbound events (MantleEvents) and OffhandCooldownTracker
