@@ -6,12 +6,20 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.WallBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.PushReaction;
+import slimeknights.mantle.block.MantleStairBlock;
+import slimeknights.mantle.registration.object.BuildingBlockObject;
 import slimeknights.mantle.registration.object.EnumObject;
 import slimeknights.mantle.registration.object.EnumObject.Builder;
+import slimeknights.mantle.registration.object.FenceBuildingBlockObject;
 import slimeknights.mantle.registration.object.ItemObject;
+import slimeknights.mantle.registration.object.MetalItemObject;
+import slimeknights.mantle.registration.object.WallBuildingBlockObject;
 
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -198,6 +206,130 @@ public class BlockDeferredRegister extends DeferredRegisterWrapper<Block> {
     return builder.build();
   }
 
-  // TODO(T-12b): building blocks (slab/stairs/wall/fence) and metal objects
+
+
+  /* Building */
+
+  /**
+   * Registers a plain block with slab and stairs, all made from the same base properties
+   * @param name   Block name
+   * @param props  Creates the base properties, called once per block; the id is set afterwards
+   * @param item   Creates the block item, used for all variants
+   * @return  Building block object
+   */
+  public BuildingBlockObject registerBuilding(String name, Supplier<BlockBehaviour.Properties> props, BiFunction<? super Block, Item.Properties, ? extends BlockItem> item) {
+    ItemObject<Block> blockObj = register(name, props, Block::new, item);
+    return new BuildingBlockObject(blockObj,
+      register(name + "_slab", props, SlabBlock::new, item),
+      register(name + "_stairs", props, p -> new MantleStairBlock(blockObj.get().defaultBlockState(), p), item));
+  }
+
+  /**
+   * Registers a custom block with slab and stairs copying its properties
+   * @param name     Block name
+   * @param props    Creates the base block properties; the id is set afterwards
+   * @param factory  Creates the base block from properties that already carry its id
+   * @param item     Creates the block item, used for all variants
+   * @return  Building block object
+   */
+  public BuildingBlockObject registerBuilding(String name, Supplier<BlockBehaviour.Properties> props, Function<BlockBehaviour.Properties, ? extends Block> factory,
+                                              BiFunction<? super Block, Item.Properties, ? extends BlockItem> item) {
+    ItemObject<Block> blockObj = register(name, props, factory, item);
+    // copies are taken at registration, when the base block exists (it is an earlier entry)
+    Supplier<BlockBehaviour.Properties> copy = () -> BlockBehaviour.Properties.ofFullCopy(blockObj.get());
+    return new BuildingBlockObject(blockObj,
+      register(name + "_slab", copy, SlabBlock::new, item),
+      register(name + "_stairs", copy, p -> new MantleStairBlock(blockObj.get().defaultBlockState(), p), item));
+  }
+
+  /**
+   * Registers a plain block with slab, stairs, and wall
+   * @param name   Name of the block
+   * @param props  Creates the base properties, called once per block; the id is set afterwards
+   * @param item   Creates the block item, used for all variants
+   * @return  Wall building block object
+   */
+  public WallBuildingBlockObject registerWallBuilding(String name, Supplier<BlockBehaviour.Properties> props, BiFunction<? super Block, Item.Properties, ? extends BlockItem> item) {
+    return new WallBuildingBlockObject(registerBuilding(name, props, item), register(name + "_wall", props, WallBlock::new, item));
+  }
+
+  /**
+   * Registers a custom block with slab, stairs, and wall copying its properties
+   * @param name     Block name
+   * @param props    Creates the base block properties; the id is set afterwards
+   * @param factory  Creates the base block from properties that already carry its id
+   * @param item     Creates the block item, used for all variants
+   * @return  Wall building block object
+   */
+  public WallBuildingBlockObject registerWallBuilding(String name, Supplier<BlockBehaviour.Properties> props, Function<BlockBehaviour.Properties, ? extends Block> factory,
+                                                      BiFunction<? super Block, Item.Properties, ? extends BlockItem> item) {
+    BuildingBlockObject obj = registerBuilding(name, props, factory, item);
+    return new WallBuildingBlockObject(obj, register(name + "_wall", () -> BlockBehaviour.Properties.ofFullCopy(obj.get()), WallBlock::new, item));
+  }
+
+  /**
+   * Registers a plain block with slab, stairs, and fence
+   * @param name   Name of the block
+   * @param props  Creates the base properties, called once per block; the id is set afterwards
+   * @param item   Creates the block item, used for all variants
+   * @return  Fence building block object
+   */
+  public FenceBuildingBlockObject registerFenceBuilding(String name, Supplier<BlockBehaviour.Properties> props, BiFunction<? super Block, Item.Properties, ? extends BlockItem> item) {
+    return new FenceBuildingBlockObject(registerBuilding(name, props, item), register(name + "_fence", props, FenceBlock::new, item));
+  }
+
+  /**
+   * Registers a custom block with slab, stairs, and fence copying its properties
+   * @param name     Block name
+   * @param props    Creates the base block properties; the id is set afterwards
+   * @param factory  Creates the base block from properties that already carry its id
+   * @param item     Creates the block item, used for all variants
+   * @return  Fence building block object
+   */
+  public FenceBuildingBlockObject registerFenceBuilding(String name, Supplier<BlockBehaviour.Properties> props, Function<BlockBehaviour.Properties, ? extends Block> factory,
+                                                        BiFunction<? super Block, Item.Properties, ? extends BlockItem> item) {
+    BuildingBlockObject obj = registerBuilding(name, props, factory, item);
+    return new FenceBuildingBlockObject(obj, register(name + "_fence", () -> BlockBehaviour.Properties.ofFullCopy(obj.get()), FenceBlock::new, item));
+  }
+
+
+  /* Metal */
+
+  /**
+   * Creates a new metal item object: storage block, ingot and nugget
+   * @param name        Metal name
+   * @param tagName     Name to use for the common tags of this metal
+   * @param blockProps  Creates the block properties; the id is set afterwards
+   * @param blockItem   Creates the block item
+   * @param itemProps   Creates the base properties for the ingot and nugget, called once per item
+   * @return  Metal item object
+   */
+  public MetalItemObject registerMetal(String name, String tagName, Supplier<BlockBehaviour.Properties> blockProps,
+                                       BiFunction<? super Block, Item.Properties, ? extends BlockItem> blockItem, Supplier<Item.Properties> itemProps) {
+    ItemObject<Block> block = register(name + "_block", blockProps, blockItem);
+    RegistryObject<Item> ingot = registerPlainItem(name + "_ingot", itemProps);
+    RegistryObject<Item> nugget = registerPlainItem(name + "_nugget", itemProps);
+    return new MetalItemObject(tagName, block, ingot, nugget);
+  }
+
+  /**
+   * Creates a new metal item object, using the metal name for its tags
+   * @param name        Metal name
+   * @param blockProps  Creates the block properties; the id is set afterwards
+   * @param blockItem   Creates the block item
+   * @param itemProps   Creates the base properties for the ingot and nugget, called once per item
+   * @return  Metal item object
+   */
+  public MetalItemObject registerMetal(String name, Supplier<BlockBehaviour.Properties> blockProps,
+                                       BiFunction<? super Block, Item.Properties, ? extends BlockItem> blockItem, Supplier<Item.Properties> itemProps) {
+    return registerMetal(name, name, blockProps, blockItem, itemProps);
+  }
+
+  /** Registers a plain item in this register's item register, with the id set on its properties */
+  private RegistryObject<Item> registerPlainItem(String name, Supplier<Item.Properties> props) {
+    ResourceKey<Item> key = key(Registries.ITEM, name);
+    return itemRegister.register(name, () -> new Item(props.get().setId(key)));
+  }
+
   // TODO(T-12c): wood objects with signs, doors, trapdoors, pressure plates and buttons
 }

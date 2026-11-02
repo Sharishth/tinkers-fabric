@@ -28,6 +28,10 @@ Target: Minecraft 26.3, Fabric Loader, Fabric API, Java 25.
 | Area | Upstream (1.20.1) | This port | Why |
 |---|---|---|---|
 | Common tag namespace | `forge:` (for example `forge:ingots/iron`) | `c:` (for example `c:ingots/iron`) | Fabric and 26.x use `c`; upstream planned the same move for 1.21+ |
+| Spawn eggs | Two egg colours passed at registration | No colours: 26.x spawn eggs use an item model and texture | Vanilla 26.x removed spawn egg colours |
+| Potion ids from Mantle's potion helper | Normal potion registered as `_name` | Normal potion is `name`; `long_name`, `strong_name` unchanged | Upstream's own TODO planned this for 1.21 |
+| `MetalItemObject.values()` | Listed the ingot twice and skipped the nugget | Block, ingot and nugget | Upstream bug; `forEach` already visited all three |
+| Mantle menu types (for addon code) | Forge `IContainerFactory` reading a raw buffer | Fabric `ExtendedMenuType` with a `StreamCodec` for the opening data | Fabric has no Forge menu extension |
 | Mantle registration API (for addon code) | Suppliers, e.g. `ITEMS.register("x", () -> new Item(props))`; registers attach to the Forge event bus | Factories that receive properties already carrying the entry id, e.g. `ITEMS.register("x", p -> new Item(p.stacksTo(16)))`; `register()` then `RegistrationQueue.flush()` | 26.x requires the id inside item and block properties before construction; Fabric has no register events |
 
 ## Not ported (yet or on purpose)
@@ -37,4 +41,7 @@ Every feature left out is listed here with its reason. Nothing is dropped silent
 | Feature | Upstream location | Reason | Tracking |
 |---|---|---|---|
 | Mantle registry adapters (`RegistryAdapter`, `BlockRegistryAdapter`, `ItemRegistryAdapter`, `FluidRegistryAdapter`, `EntityTypeRegistryAdapter`, `ContainerTypeRegistryAdapter`, `EnumRegistryAdapter`, `BlockEntityTypeRegistryAdapter`) | Mantle `registration/adapter` | Built for Forge's register event (construct first, register later). 26.x needs ids before construction, and Tinkers uses none of them; the deferred registers cover the same cases. Mantle's own sign block entities move to the wood registration (T-12c) | I-008 |
+| `RegistrationHelper.injected()` and `@ObjectHolder` fields | Mantle `registration` | Forge-only field injection; Fabric code holds `RegistryObject` handles instead | none needed |
+| `RegistrationHelper.handleMissingMappings` (remap renamed ids in old worlds) | Mantle `registration` | No Forge MissingMappingsEvent and no registry alias API in 26.3; only matters for worlds made with older Tinkers versions | I-009 |
+| Block entity data fixer types | Mantle `BlockEntityTypeDeferredRegister` | Removed from vanilla `BlockEntityType` in 26.x | none needed |
 
