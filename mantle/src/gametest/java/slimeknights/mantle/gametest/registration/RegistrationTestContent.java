@@ -43,6 +43,7 @@ import slimeknights.mantle.registration.object.FenceBuildingBlockObject;
 import slimeknights.mantle.registration.object.ItemObject;
 import slimeknights.mantle.registration.object.MetalItemObject;
 import slimeknights.mantle.registration.object.WallBuildingBlockObject;
+import slimeknights.mantle.registration.object.WoodBlockObject;
 
 import java.util.Locale;
 
@@ -89,6 +90,12 @@ public class RegistrationTestContent implements ModInitializer {
   public static final EnumObject<PotionType, Potion> TEST_POTIONS = POTIONS.registerTypes("test_potion", () -> MobEffects.SPEED, 3600, 0).withStrong().withLong().build();
   public static final EnumObject<Variant, SoundEvent> TEST_SOUNDS = SOUNDS.registerEnum(
     "test_sound", Variant.values(), variant -> SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath(NAMESPACE, "test_sound_" + variant.getSerializedName())));
+
+  /* T-12c content */
+  /** Burns like vanilla wood */
+  public static final WoodBlockObject FLAMMABLE_WOOD = BLOCKS.registerWood("test_wood", variant -> BlockBehaviour.Properties.of(), true);
+  /** Never burns, like Tinkers' slimewoods */
+  public static final WoodBlockObject FIREPROOF_WOOD = BLOCKS.registerWood("test_fireproof_wood", variant -> BlockBehaviour.Properties.of(), false);
 
   @Override
   public void onInitialize() {

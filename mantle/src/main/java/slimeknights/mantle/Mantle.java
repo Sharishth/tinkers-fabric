@@ -28,7 +28,7 @@ public class Mantle implements ModInitializer {
   public void onInitialize() {
     instance = this;
     // TODO(T-15): register client and server config (upstream Mantle constructor)
-    // TODO(T-12): MantleTags.init and sign block entity types (upstream register BLOCK_ENTITY_TYPE)
+    // TODO(T-22): MantleTags.init (sign block entity types: vanilla's, see registerWood)
     // TODO(T-13): predicate loaders and mob type predicates (upstream register RECIPE_SERIALIZER block)
     // TODO(T-16): MantleNetwork.registerPackets (upstream commonSetup)
     // TODO(T-17): MantleCommand.init and resource_or_tag_key argument type

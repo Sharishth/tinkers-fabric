@@ -10,6 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import slimeknights.mantle.registration.object.ItemObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,6 +79,27 @@ class DeferredRegisterTest {
     register.registerEntries();
     IllegalStateException error = assertThrows(IllegalStateException.class, () -> register.register("too_late", () -> new Block(null)));
     assertTrue(error.getMessage().contains("mantle_unit:too_late"), error.getMessage());
+  }
+
+  @Test
+  void afterFlushTasksRunOnceInOrder() {
+    SynchronizedDeferredRegister<Block> register = SynchronizedDeferredRegister.create(Registries.BLOCK, "mantle_unit");
+    List<String> calls = new ArrayList<>();
+    register.afterFlush(() -> calls.add("first"));
+    register.afterFlush(() -> calls.add("second"));
+    register.register();
+    // only empty registers are ever queued in unit tests, so flushing touches no frozen registry
+    RegistrationQueue.flush();
+    assertEquals(List.of("first", "second"), calls);
+    register.runAfterFlushTasks();
+    assertEquals(2, calls.size(), "tasks run once");
+  }
+
+  @Test
+  void addingTaskAfterRegistrationFails() {
+    SynchronizedDeferredRegister<Block> register = SynchronizedDeferredRegister.create(Registries.BLOCK, "mantle_unit");
+    register.registerEntries();
+    assertThrows(IllegalStateException.class, () -> register.afterFlush(() -> {}));
   }
 
   @Test

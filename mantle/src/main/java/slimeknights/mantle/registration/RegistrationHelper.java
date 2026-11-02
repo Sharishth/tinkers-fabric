@@ -10,8 +10,9 @@ import java.util.function.Supplier;
 
 /**
  * Small registration utilities.
- * Ported: bucket properties and casted holders. Wood types move with wood registration (T-12c),
- * argument type casting with commands (T-17); Forge-only injection and missing-mapping helpers have no Fabric equivalent (I-009).
+ * Ported: bucket properties and casted holders. Argument type casting moves with commands (T-17).
+ * Not ported: registerWoodType/forEachWoodType, since BlockDeferredRegister.registerWood uses Fabric's WoodTypeBuilder
+ * and 26.3 sign textures need no atlas list; Forge-only injection and missing-mapping helpers have no Fabric equivalent (I-009).
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RegistrationHelper {

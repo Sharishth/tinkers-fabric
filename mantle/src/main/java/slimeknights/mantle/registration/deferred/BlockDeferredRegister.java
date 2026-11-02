@@ -1,18 +1,45 @@
 package slimeknights.mantle.registration.deferred;
 
+import net.fabricmc.fabric.api.item.v1.BlockTransformerHelper;
+import net.fabricmc.fabric.api.object.builder.v1.block.type.BlockSetTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.block.type.WoodTypeBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DoubleHighBlockItem;
+import net.minecraft.world.item.HangingSignItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CeilingHangingSignBlock;
 import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.FlowerPotBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.block.WallHangingSignBlock;
+import net.minecraft.world.level.block.WallSignBlock;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProviders;
+import slimeknights.mantle.block.MantleButtonBlock;
+import slimeknights.mantle.block.MantleDoorBlock;
+import slimeknights.mantle.block.MantlePressurePlateBlock;
 import slimeknights.mantle.block.MantleStairBlock;
+import slimeknights.mantle.block.MantleTrapDoorBlock;
 import slimeknights.mantle.registration.object.BuildingBlockObject;
 import slimeknights.mantle.registration.object.EnumObject;
 import slimeknights.mantle.registration.object.EnumObject.Builder;
@@ -20,6 +47,8 @@ import slimeknights.mantle.registration.object.FenceBuildingBlockObject;
 import slimeknights.mantle.registration.object.ItemObject;
 import slimeknights.mantle.registration.object.MetalItemObject;
 import slimeknights.mantle.registration.object.WallBuildingBlockObject;
+import slimeknights.mantle.registration.object.WoodBlockObject;
+import slimeknights.mantle.registration.object.WoodBlockObject.WoodVariant;
 
 import java.util.Collection;
 import java.util.Map.Entry;
@@ -35,6 +64,9 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class BlockDeferredRegister extends DeferredRegisterWrapper<Block> {
+  /** Ticks a wooden button stays pressed, as vanilla wooden buttons */
+  private static final int WOOD_BUTTON_PRESSED_TICKS = 30;
+
   protected final SynchronizedDeferredRegister<Item> itemRegister;
 
   public BlockDeferredRegister(String modID) {
@@ -331,5 +363,127 @@ public class BlockDeferredRegister extends DeferredRegisterWrapper<Block> {
     return itemRegister.register(name, () -> new Item(props.get().setId(key)));
   }
 
-  // TODO(T-12c): wood objects with signs, doors, trapdoors, pressure plates and buttons
+
+  /* Wood */
+
+  /**
+   * Registers a full wood set: planks with slab, stairs and fence, logs and wood with stripped forms,
+   * fence gate, door, trapdoor, pressure plate, button, and standing, wall and hanging signs.
+   * Stripping and the sign block entity types are wired after {@link RegistrationQueue#flush()}, so call {@link #register()}.
+   * @param name             Name of the wood type, the prefix of every block
+   * @param behaviorCreator  Creates fresh base properties for a variant, called once per block
+   * @param flammable        If true, the items burn as furnace fuel like vanilla wood
+   * @return  Wood object
+   */
+  public WoodBlockObject registerWood(String name, Function<WoodVariant, BlockBehaviour.Properties> behaviorCreator, boolean flammable) {
+    // WHY Fabric builders: 26.3 has no public WoodType/BlockSetType register; the builders also fix the sign edit screens
+    BlockSetType setType = new BlockSetTypeBuilder().register(resource(name));
+    WoodType woodType = new WoodTypeBuilder().register(resource(name), setType);
+    WoodSettings wood = new WoodSettings(behaviorCreator, flammable);
+    BiFunction<Block, Item.Properties, BlockItem> woodBlockItem = wood.item(ContextIntProviders.COOKING_TIME_WOOD_BLOCKS);
+
+    // planks
+    BuildingBlockObject planks = registerBuilding(name + "_planks", () -> wood.props(WoodVariant.PLANKS).strength(2.0f, 3.0f),
+      (block, props) -> new BlockItem(block, wood.fuel(props, block instanceof SlabBlock ? ContextIntProviders.COOKING_TIME_WOOD_SLABS : ContextIntProviders.COOKING_TIME_WOOD_BLOCKS)));
+    ItemObject<FenceBlock> fence = register(name + "_fence", () -> BlockBehaviour.Properties.ofFullCopy(planks.get()).forceSolidOn(), FenceBlock::new, woodBlockItem);
+    // logs and wood
+    Supplier<BlockBehaviour.Properties> strippedProps = () -> wood.props(WoodVariant.PLANKS).strength(2.0f);
+    ItemObject<RotatedPillarBlock> strippedLog = register("stripped_" + name + "_log", strippedProps, RotatedPillarBlock::new, woodBlockItem);
+    ItemObject<RotatedPillarBlock> strippedWood = register("stripped_" + name + "_wood", strippedProps, RotatedPillarBlock::new, woodBlockItem);
+    ItemObject<RotatedPillarBlock> log = register(name + "_log", () -> wood.props(WoodVariant.LOG).strength(2.0f), RotatedPillarBlock::new, woodBlockItem);
+    ItemObject<RotatedPillarBlock> logWood = register(name + "_wood", () -> wood.props(WoodVariant.WOOD).strength(2.0f), RotatedPillarBlock::new, woodBlockItem);
+    // WHY after flush: replaces upstream StrippableLogBlock's Forge tool hook; the helper needs the constructed blocks
+    register.afterFlush(() -> {
+      BlockTransformerHelper.registerStripping(log.get(), strippedLog.get());
+      BlockTransformerHelper.registerStripping(logWood.get(), strippedWood.get());
+    });
+
+    // doors
+    ItemObject<MantleDoorBlock> door = register(name + "_door", () -> wood.props(WoodVariant.PLANKS).strength(3.0f).noOcclusion().pushReaction(PushReaction.POPPED),
+      p -> new MantleDoorBlock(setType, p), (block, props) -> new DoubleHighBlockItem(block, wood.fuel(props, ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE)));
+    ItemObject<MantleTrapDoorBlock> trapdoor = register(name + "_trapdoor", () -> wood.props(WoodVariant.PLANKS).strength(3.0f).noOcclusion().isValidSpawn(BlockDeferredRegister::neverSpawn),
+      p -> new MantleTrapDoorBlock(setType, p), woodBlockItem);
+    ItemObject<FenceGateBlock> fenceGate = register(name + "_fence_gate", () -> BlockBehaviour.Properties.ofFullCopy(fence.get()), p -> new FenceGateBlock(woodType, p), woodBlockItem);
+    // redstone
+    Supplier<BlockBehaviour.Properties> redstoneProps = () -> wood.props(WoodVariant.PLANKS).forceSolidOn().noCollision().pushReaction(PushReaction.POPPED).strength(0.5f);
+    ItemObject<MantlePressurePlateBlock> pressurePlate = register(name + "_pressure_plate", redstoneProps, p -> new MantlePressurePlateBlock(setType, p), woodBlockItem);
+    ItemObject<MantleButtonBlock> button = register(name + "_button", redstoneProps, p -> new MantleButtonBlock(setType, WOOD_BUTTON_PRESSED_TICKS, p),
+      wood.item(ContextIntProviders.COOKING_TIME_WOOD_ITEMS_EXTRA_SMALL));
+
+    // signs
+    Supplier<BlockBehaviour.Properties> signProps = () -> wood.props(WoodVariant.PLANKS).forceSolidOn().noCollision().strength(1.0f);
+    RegistryObject<StandingSignBlock> sign = registerNoItem(name + "_sign", signProps, p -> new StandingSignBlock(woodType, p));
+    RegistryObject<WallSignBlock> wallSign = registerNoItem(name + "_wall_sign", () -> wallVariant(signProps.get(), sign.get()), p -> new WallSignBlock(woodType, p));
+    RegistryObject<CeilingHangingSignBlock> hangingSign = registerNoItem(name + "_hanging_sign", signProps, p -> new CeilingHangingSignBlock(woodType, p));
+    RegistryObject<WallHangingSignBlock> wallHangingSign = registerNoItem(name + "_wall_hanging_sign", () -> wallVariant(signProps.get(), hangingSign.get()),
+      p -> new WallHangingSignBlock(woodType, p));
+    registerSignItems(name, wood, sign, wallSign, hangingSign, wallHangingSign);
+
+    return new WoodBlockObject(resource(name), woodType, planks, log, strippedLog, logWood, strippedWood,
+                               fence, fenceGate, door, trapdoor, pressurePlate, button,
+                               sign, wallSign, hangingSign, wallHangingSign);
+  }
+
+  /**
+   * Registers the sign and hanging sign items, and adds all four sign blocks to the vanilla sign block entity types.
+   * WHY vanilla block entity types: Fabric's addValidBlock opens their block set, so upstream's MantleSignBlockEntity copies are not needed.
+   */
+  private void registerSignItems(String name, WoodSettings wood, Supplier<StandingSignBlock> sign, Supplier<WallSignBlock> wallSign,
+                                 Supplier<CeilingHangingSignBlock> hangingSign, Supplier<WallHangingSignBlock> wallHangingSign) {
+    ResourceKey<Item> signKey = key(Registries.ITEM, name + "_sign");
+    itemRegister.register(name + "_sign", () -> new StandingAndWallBlockItem(sign.get(), wallSign.get(), Direction.DOWN,
+      wood.fuel(signItemProperties(signKey), ContextIntProviders.COOKING_TIME_WOOD_ITEMS_LARGE)));
+    ResourceKey<Item> hangingSignKey = key(Registries.ITEM, name + "_hanging_sign");
+    itemRegister.register(name + "_hanging_sign", () -> new HangingSignItem(hangingSign.get(), wallHangingSign.get(),
+      wood.fuel(signItemProperties(hangingSignKey), ContextIntProviders.COOKING_TIME_HANGING_SIGNS)));
+    register.afterFlush(() -> {
+      BlockEntityTypes.SIGN.addValidBlock(sign.get());
+      BlockEntityTypes.SIGN.addValidBlock(wallSign.get());
+      BlockEntityTypes.HANGING_SIGN.addValidBlock(hangingSign.get());
+      BlockEntityTypes.HANGING_SIGN.addValidBlock(wallHangingSign.get());
+    });
+  }
+
+  /** Item properties for a sign item, as vanilla sign items: stacks of 16, editable text */
+  private static Item.Properties signItemProperties(ResourceKey<Item> key) {
+    return new Item.Properties().useBlockDescriptionPrefix().setId(key).stacksTo(16).signText();
+  }
+
+  /**
+   * Makes a wall sign drop and display as its standing sign, like vanilla's private Blocks.wallVariant.
+   * Replaces upstream's lootFrom; the standing sign is an earlier entry, so it exists when this runs.
+   */
+  private static BlockBehaviour.Properties wallVariant(BlockBehaviour.Properties props, Block standing) {
+    return props.overrideLootTable(standing.getLootTable()).overrideDescription(standing.getDescriptionId());
+  }
+
+  /** Spawn predicate that never allows spawning; vanilla's Blocks.never is private in 26.3 */
+  private static boolean neverSpawn(BlockState state, BlockGetter level, BlockPos pos, EntityType<?> type) {
+    return false;
+  }
+
+  /**
+   * Shared settings for the blocks and items of one wood type.
+   * @param behaviorCreator  Creates fresh base properties for a variant
+   * @param flammable        If true, items get vanilla wood burn times
+   */
+  private record WoodSettings(Function<WoodVariant, BlockBehaviour.Properties> behaviorCreator, boolean flammable) {
+    /** Fresh properties for a variant, with the wooden note block sound */
+    BlockBehaviour.Properties props(WoodVariant variant) {
+      return behaviorCreator.apply(variant).instrument(NoteBlockInstrument.BASS);
+    }
+
+    /**
+     * Adds a burn time when the wood is flammable.
+     * WHY keys: 26.3 burn times are data-driven values, replacing upstream's Burnable*Item classes and their tick counts.
+     */
+    Item.Properties fuel(Item.Properties props, ResourceKey<ContextIntProvider> burnTime) {
+      return flammable ? props.cookingFuel(burnTime) : props;
+    }
+
+    /** Block item factory with the given burn time */
+    BiFunction<Block, Item.Properties, BlockItem> item(ResourceKey<ContextIntProvider> burnTime) {
+      return (block, props) -> new BlockItem(block, fuel(props, burnTime));
+    }
+  }
 }

@@ -40,6 +40,10 @@ public final class RegistrationQueue {
     for (SynchronizedDeferredRegister<?> register : registers) {
       register.registerEntries();
     }
+    // tasks may read entries of any registry, so they wait until all are filled
+    for (SynchronizedDeferredRegister<?> register : registers) {
+      register.runAfterFlushTasks();
+    }
   }
 
   /** Gets the number of registers waiting for {@link #flush()} */

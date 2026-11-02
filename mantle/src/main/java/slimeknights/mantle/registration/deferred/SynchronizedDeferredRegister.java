@@ -21,6 +21,8 @@ public class SynchronizedDeferredRegister<T> {
   private final ResourceKey<? extends Registry<T>> registryKey;
   private final String modId;
   private final List<Entry<T, ?>> entries = new ArrayList<>();
+  /** Tasks that need the finished registries, run after every queued register is filled */
+  private final List<Runnable> afterFlushTasks = new ArrayList<>();
   /** True once {@link #register()} queued this register */
   private boolean queued = false;
   /** True once the entries are in the registry; later additions would be silently lost */
@@ -52,6 +54,19 @@ public class SynchronizedDeferredRegister<T> {
     return entry.object;
   }
 
+  /**
+   * Queues a task that needs registered entries, such as stripping or block entity wiring.
+   * WHY: Forge code did this in common setup; Fabric has none, so the task runs at the end of {@link RegistrationQueue#flush()},
+   * after every registry in that flush is filled. It never runs if this register is not queued with {@link #register()}.
+   * @param task  Task to run once
+   */
+  public synchronized void afterFlush(Runnable task) {
+    if (flushed) {
+      throw new IllegalStateException("Cannot add a post-registration task to " + modId + " " + registryKey.identifier() + " after it was registered");
+    }
+    afterFlushTasks.add(task);
+  }
+
   /** Queues this register for {@link RegistrationQueue#flush()}; Fabric replacement for register(IEventBus) */
   public synchronized void register() {
     if (!queued) {
@@ -77,6 +92,14 @@ public class SynchronizedDeferredRegister<T> {
       entry.registerInto(registry);
     }
     flushed = true;
+  }
+
+  /** Runs the tasks from {@link #afterFlush(Runnable)} once, in the order they were added */
+  synchronized void runAfterFlushTasks() {
+    for (Runnable task : afterFlushTasks) {
+      task.run();
+    }
+    afterFlushTasks.clear();
   }
 
   @SuppressWarnings("unchecked")
