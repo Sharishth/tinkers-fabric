@@ -15,7 +15,8 @@
 			"slimeknights.mantle.gametest.registration.RegistrationObjectsGameTest",
 			"slimeknights.mantle.gametest.registration.WoodRegistrationGameTest",
 			"slimeknights.mantle.gametest.data.LoadableGameTest",
-			"slimeknights.mantle.gametest.data.PredicateGameTest"
+			"slimeknights.mantle.gametest.data.PredicateGameTest",
+			"slimeknights.mantle.gametest.data.UtilGameTest"
 		]
 	},
 	"depends": {
