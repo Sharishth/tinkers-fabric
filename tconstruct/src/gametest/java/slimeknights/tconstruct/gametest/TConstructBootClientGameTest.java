@@ -21,7 +21,8 @@ public class TConstructBootClientGameTest implements FabricClientGameTest {
     context.takeScreenshot("tconstruct-title-screen");
 
     try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
-      context.waitTicks(20);
+      // WHY: a fixed tick wait can screenshot half-loaded terrain; wait for real chunk rendering
+      singleplayer.getConnection().waitForChunksRender();
       context.takeScreenshot("tconstruct-singleplayer-world");
     }
   }
