@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -16,9 +17,18 @@ public final class LoadableTesting {
     return new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
   }
 
+  /** Creates a network buffer with the built-in registries, for items and other registry-backed values; needs a bootstrapped game */
+  public static RegistryFriendlyByteBuf builtInBuffer() {
+    return new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+  }
+
   /** Writes the value with the codec, reads it back, and fails if bytes are left over */
   public static <T> T network(StreamCodec<RegistryFriendlyByteBuf, T> codec, T value) {
-    RegistryFriendlyByteBuf buffer = buffer();
+    return network(codec, value, buffer());
+  }
+
+  /** Same as {@link #network(StreamCodec, Object)} with the given buffer */
+  public static <T> T network(StreamCodec<RegistryFriendlyByteBuf, T> codec, T value, RegistryFriendlyByteBuf buffer) {
     codec.encode(buffer, value);
     T read = codec.decode(buffer);
     if (buffer.isReadable()) {

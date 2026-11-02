@@ -2,6 +2,7 @@ package slimeknights.mantle.data.loadable.field;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 import slimeknights.mantle.data.loadable.ErrorFactory;
@@ -20,6 +21,11 @@ public class ContextKey<T> implements Key<T> {
   public static final ContextKey<Identifier> ID = new ContextKey<>("id");
   /** Extra text for log messages, such as the file being parsed */
   public static final ContextKey<String> DEBUG = new ContextKey<>("debug info");
+  /**
+   * Registries for parsing values that reference them, such as ingredients, item components and enchantments (D-21).
+   * Reload listeners set it (T-14); without it, parsing falls back to the built-in registries.
+   */
+  public static final ContextKey<HolderLookup.Provider> REGISTRIES = new ContextKey<>("registries");
   // TODO(T-44): CONDITION_CONTEXT key for ConditionalLoadable (upstream Forge ICondition.IContext; Fabric ResourceConditions)
 
   /** Name of the key, for debug */

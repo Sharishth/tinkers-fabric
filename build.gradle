@@ -64,6 +64,8 @@ subprojects {
 	tasks.withType(JavaCompile).configureEach {
 		it.options.release = java_version as int
 		it.options.encoding = 'UTF-8'
+		// Report each deprecated or unchecked use instead of javac's one-line summary note (03 tooling)
+		it.options.compilerArgs.add('-Xlint:deprecation,unchecked,removal')
 	}
 
 	java {
