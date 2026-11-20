@@ -32,6 +32,8 @@ bin/
 classes/
 remappedSrc/
 logs/
+# Fabric Loader unpacks nested library jars here when tests boot it
+.fabric/
 *.iml
 *.ipr
 *.iws

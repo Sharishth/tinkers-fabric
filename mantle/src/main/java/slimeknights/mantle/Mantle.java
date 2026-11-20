@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import slimeknights.mantle.config.Config;
 import slimeknights.mantle.data.predicate.MantlePredicates;
 
 /**
@@ -28,7 +29,8 @@ public class Mantle implements ModInitializer {
   @Override
   public void onInitialize() {
     instance = this;
-    // TODO(T-15): register client and server config (upstream Mantle constructor)
+    // the client config is registered by the client entrypoint, see Config.registerClient
+    Config.registerServer();
     // TODO(T-22): MantleTags.init (sign block entity types: vanilla's, see registerWood)
     MantlePredicates.register();
     // TODO(T-16): MantleNetwork.registerPackets (upstream commonSetup)

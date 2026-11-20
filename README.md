@@ -30,6 +30,7 @@ Anything not yet ported, or left out on purpose, is listed with its reason in [P
 | Minecraft | 26.3 |
 | Fabric Loader | 0.19.5 or newer |
 | Fabric API | 0.161.0+26.3 or newer |
+| [Forge Config API Port](https://modrinth.com/mod/forge-config-api-port) | 26.3.1 or newer; a separate mod you install yourself, it is not bundled |
 | Java | 25 |
 
 Versions are confirmed against fabricmc.net during setup; see PORTING.md for the current pins.
@@ -44,7 +45,7 @@ cd tinkers-fabric
 scripts\env\restore_env.bat
 ```
 
-The jar to install is `tconstruct\build\libs\tconstruct-<version>.jar` (Mantle is bundled inside it).
+The jar to install is `tconstruct\build\libs\tconstruct-<version>.jar` (Mantle is bundled inside it). Put it in your `mods` folder together with Fabric API and Forge Config API Port.
 
 ## Development
 

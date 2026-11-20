@@ -12,6 +12,7 @@
 		],
 		"fabric-gametest": [
 			"slimeknights.mantle.gametest.MantleSmokeGameTest",
+			"slimeknights.mantle.gametest.ConfigGameTest",
 			"slimeknights.mantle.gametest.registration.RegistrationGameTest",
 			"slimeknights.mantle.gametest.registration.RegistrationObjectsGameTest",
 			"slimeknights.mantle.gametest.registration.WoodRegistrationGameTest",

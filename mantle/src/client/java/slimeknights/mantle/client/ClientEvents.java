@@ -2,6 +2,7 @@ package slimeknights.mantle.client;
 
 import net.fabricmc.api.ClientModInitializer;
 import slimeknights.mantle.Mantle;
+import slimeknights.mantle.config.Config;
 
 /**
  * Client entrypoint for Mantle.
@@ -10,6 +11,7 @@ import slimeknights.mantle.Mantle;
 public class ClientEvents implements ClientModInitializer {
   @Override
   public void onInitializeClient() {
+    Config.registerClient();
     // WHY no sign renderers or atlas hook: wood signs use vanilla's sign block entity types and renderers,
     // and 26.3 sign boards are plain block models, so upstream's Sheets.addWoodType has no job left
     // TODO(T-70): model loaders (connected, item_layer, colored_block, fallback, nbt_key, retextured)

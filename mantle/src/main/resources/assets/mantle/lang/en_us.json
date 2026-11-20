@@ -1,0 +1,6 @@
+{
+  "config.mantle.extraHeartRenderer": "Extra Heart Renderer",
+  "config.mantle.enableFluidFogFix": "Enable Fluid Fog Fix",
+  "config.mantle.fluidFallbackUseTextShader": "Fluid Fallback Use Text Shader",
+  "config.mantle.tagPreferences": "Tag Preferences"
+}
