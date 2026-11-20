@@ -7,7 +7,8 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"slimeknights.mantle.gametest.registration.RegistrationTestContent"
+			"slimeknights.mantle.gametest.registration.RegistrationTestContent",
+			"slimeknights.mantle.gametest.data.ReloadTestContent"
 		],
 		"fabric-gametest": [
 			"slimeknights.mantle.gametest.MantleSmokeGameTest",
@@ -16,7 +17,8 @@
 			"slimeknights.mantle.gametest.registration.WoodRegistrationGameTest",
 			"slimeknights.mantle.gametest.data.LoadableGameTest",
 			"slimeknights.mantle.gametest.data.PredicateGameTest",
-			"slimeknights.mantle.gametest.data.UtilGameTest"
+			"slimeknights.mantle.gametest.data.UtilGameTest",
+			"slimeknights.mantle.gametest.data.ReloadListenerGameTest"
 		]
 	},
 	"depends": {

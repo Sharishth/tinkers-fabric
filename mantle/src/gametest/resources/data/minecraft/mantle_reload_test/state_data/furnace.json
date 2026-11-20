@@ -1,0 +1,9 @@
+{
+  "variants": {
+    "lit=true": {
+      "enchantment": "minecraft:fire_aspect",
+      "input": "#minecraft:logs"
+    },
+    "lit=false": "mantle_test:unlit"
+  }
+}

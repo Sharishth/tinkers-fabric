@@ -23,7 +23,8 @@ public class ContextKey<T> implements Key<T> {
   public static final ContextKey<String> DEBUG = new ContextKey<>("debug info");
   /**
    * Registries for parsing values that reference them, such as ingredients, item components and enchantments (D-21).
-   * Reload listeners set it (T-14); without it, parsing falls back to the built-in registries.
+   * Server data reload listeners set it through {@link slimeknights.mantle.data.listener.ReloadContext} (D-22);
+   * without it, parsing falls back to the built-in registries.
    */
   public static final ContextKey<HolderLookup.Provider> REGISTRIES = new ContextKey<>("registries");
   // TODO(T-44): CONDITION_CONTEXT key for ConditionalLoadable (upstream Forge ICondition.IContext; Fabric ResourceConditions)
