@@ -9,7 +9,9 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -17,6 +19,7 @@ import org.jspecify.annotations.Nullable;
 import slimeknights.mantle.Mantle;
 import slimeknights.mantle.data.gson.IdentifierSerializer;
 import slimeknights.mantle.data.loadable.Loadable;
+import slimeknights.mantle.network.NetworkWrapper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -26,8 +29,8 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
- * JSON reading helpers: identifiers, lists, resource files and codecs.
- * Not ported: packet syncing on datapack reload (T-16), Forge registry lookups (use Loadables), and upstream's
+ * JSON reading helpers: identifiers, lists, resource files, codecs and datapack sync payloads.
+ * Not ported: Forge registry lookups (use Loadables), and upstream's
  * deprecated enum and block state helpers (use EnumLoadable and BlockStateLoadable).
  */
 @SuppressWarnings("unused")  // API
@@ -189,5 +192,28 @@ public final class JsonHelper {
    */
   public static <T> JsonElement serialize(Codec<T> codec, T object) {
     return codec.encodeStart(JsonOps.INSTANCE, object).getOrThrow(IllegalStateException::new);
+  }
+
+
+  /* Datapack sync */
+
+  /**
+   * Sends payloads built from datapack data to one player.
+   * Call it from Fabric's ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS, which runs once per player on join and
+   * again after every successful reload (upstream: Forge's OnDatapackSyncEvent, which could cover all players at once):
+   * {@code SYNC_DATA_PACK_CONTENTS.register((player, joined) -> JsonHelper.syncPackets(player, network, packet))}.
+   * @param player   Player to sync
+   * @param network  Network the payloads are registered on as clientbound
+   * @param packets  Payloads to send, in order
+   */
+  public static void syncPackets(ServerPlayer player, NetworkWrapper network, CustomPacketPayload... packets) {
+    // WHY: the host of a single player or LAN world runs client and server in one game and shares the loaded data;
+    // syncing would only rebuild every instance a second time. LAN guests have a network connection and still sync
+    if (NetworkWrapper.isMemoryConnection(player)) {
+      return;
+    }
+    for (CustomPacketPayload packet : packets) {
+      network.sendTo(packet, player);
+    }
   }
 }

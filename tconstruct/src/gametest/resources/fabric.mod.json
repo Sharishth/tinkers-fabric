@@ -6,11 +6,18 @@
 	"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
+		"main": [
+			"slimeknights.tconstruct.gametest.network.NetworkTestContent"
+		],
+		"client": [
+			"slimeknights.tconstruct.gametest.network.NetworkTestClient"
+		],
 		"fabric-gametest": [
 			"slimeknights.tconstruct.gametest.TConstructSmokeGameTest"
 		],
 		"fabric-client-gametest": [
-			"slimeknights.tconstruct.gametest.TConstructBootClientGameTest"
+			"slimeknights.tconstruct.gametest.TConstructBootClientGameTest",
+			"slimeknights.tconstruct.gametest.network.NetworkClientGameTest"
 		]
 	},
 	"depends": {

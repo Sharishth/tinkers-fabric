@@ -8,7 +8,8 @@
 	"entrypoints": {
 		"main": [
 			"slimeknights.mantle.gametest.registration.RegistrationTestContent",
-			"slimeknights.mantle.gametest.data.ReloadTestContent"
+			"slimeknights.mantle.gametest.data.ReloadTestContent",
+			"slimeknights.mantle.gametest.network.NetworkTestContent"
 		],
 		"fabric-gametest": [
 			"slimeknights.mantle.gametest.MantleSmokeGameTest",
@@ -19,7 +20,8 @@
 			"slimeknights.mantle.gametest.data.LoadableGameTest",
 			"slimeknights.mantle.gametest.data.PredicateGameTest",
 			"slimeknights.mantle.gametest.data.UtilGameTest",
-			"slimeknights.mantle.gametest.data.ReloadListenerGameTest"
+			"slimeknights.mantle.gametest.data.ReloadListenerGameTest",
+			"slimeknights.mantle.gametest.network.NetworkGameTest"
 		]
 	},
 	"depends": {

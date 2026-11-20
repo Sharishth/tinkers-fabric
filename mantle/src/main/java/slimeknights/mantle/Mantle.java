@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import slimeknights.mantle.config.Config;
 import slimeknights.mantle.data.predicate.MantlePredicates;
+import slimeknights.mantle.network.MantleNetwork;
 
 /**
  * Central mod object for Mantle.
@@ -33,7 +34,8 @@ public class Mantle implements ModInitializer {
     Config.registerServer();
     // TODO(T-22): MantleTags.init (sign block entity types: vanilla's, see registerWood)
     MantlePredicates.register();
-    // TODO(T-16): MantleNetwork.registerPackets (upstream commonSetup)
+    // payload types must be known on both sides before any send, and this entrypoint runs on both
+    MantleNetwork.registerPackets();
     // TODO(T-17): MantleCommand.init and resource_or_tag_key argument type
     // TODO(T-18): soulbound events (MantleEvents) and OffhandCooldownTracker
     // TODO(T-44): recipe conditions, ingredients, TagPreference.init
